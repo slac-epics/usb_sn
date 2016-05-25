@@ -1,0 +1,49 @@
+#
+# Needs BASE (base PV name), PORT (name of asyn port), SERIAL (serial number)
+# and TIME (check time, in seconds).
+#
+record(stringin, "$(BASE):PORT") {
+  field(VAL, "$(PORT)")
+  field(PINI, "YES")
+}
+
+record(stringin, "$(BASE):SERIAL") {
+  field(VAL, "$(SERIAL)")
+  field(PINI, "YES")
+}
+
+record(longin, "$(BASE):USB_CHECK_TIME") {
+  field(DESC, "Delay between USB device checks")
+  field(VAL,  "$(TIME)")
+  field(PINI, "YES")
+}
+
+record(longin, "$(BASE):USB_VALID") {
+  field(DESC, "USB device is valid")
+  field(VAL,  "0")
+  field(LOLO, "0")
+  field(HIGH, "2")
+  field(HIHI, "2")
+  field(LLSV, "MAJOR")
+  field(PINI, "YES")
+}
+
+record(calcout, "$(BASE):USB_CHECK_CNT") {
+  field(INPA, "$(BASE):USB_CHECK_CNT.VAL NPP NMS")
+  field(INPB, "$(BASE):USB_CHECK_TIME NPP NMS")
+  field(SCAN, "1 second")
+  field(CALC, "(A+1>=B)?0:(A+1)")
+  field(OOPT, "When Zero")
+  field(DOPT, "Use OCAL")
+  field(OCAL, "1")
+  field(OUT,  "$(BASE):DO_USB_CHECK.PROC")
+}
+
+record(aSub, "$(BASE):DO_USB_CHECK") {
+  field(INPA, "$(BASE):PORT")
+  field(FTA,  "STRING")
+  field(OUTA, "$(BASE):USB_VALID PP")
+  field(FTVA, "LONG")
+  field(SNAM, "USB_Check")
+  field(PINI, "YES")
+}

@@ -1,0 +1,2 @@
+$(BASE):USB_CHECK_TIME 3600 monitor
+$(BASE):USB_VALID 30 monitor
