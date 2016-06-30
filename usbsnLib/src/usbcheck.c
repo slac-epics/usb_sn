@@ -1,4 +1,4 @@
-#undef ASYN_SETOPTION_TTYNAME
+#define ASYN_SETOPTION_TTYNAME
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -44,23 +44,15 @@ static int readserial(char *tty, char *buf)
 
 static char *findserial(char *serial)
 {
-    DIR *d;
-    struct dirent *dir;
-    char buf[1024];
+    char buf[1024], buf2[1024];
+    ssize_t n;
 
-    d = opendir("/sys/bus/usb-serial/devices");
-    if (d) {
-        while ((dir = readdir(d)) != NULL) {
-            if (!strncmp(dir->d_name, "ttyUSB", 6) &&
-                !readserial(dir->d_name, buf) &&
-                !strcmp(buf, serial)) {
-                closedir(d);
-                return strdup(dir->d_name);
-            }
-        }
-        closedir(d);
-    }
-    return NULL;
+    sprintf(buf, "/dev/ftdi-%s", serial);
+    n = readlink(buf, buf2, sizeof(buf2));
+    if (n < 0)
+        return NULL;
+    buf2[n] = 0;
+    return strdup(buf2);
 }
 
 void USB_Map(char *port, char *serial)
@@ -106,35 +98,35 @@ long USB_Check(struct aSubRecord *psub)
             break;
     if (i == mapcnt) {
         *valid = 0;   /* No map?!? This is a configuration error. */
-        printf("No map for %s!\n", port);
+        printf("USB_Check: No map for %s!\n", port);
         return 0;
     }
 
     if (readserial(map[i].tty, buf)) {         /* Has our device has gone away? */
         v = 0;
         if (map[i].lastserial[0]) {
-            printf("%s: device has gone away.\n", map[i].port);
+            printf("USB_Check: %s: device has gone away.\n", map[i].port);
+            map[i].lastserial[0] = 0;
 #ifdef ASYN_SETOPTION_TTYNAME
             asynSetOption(map[i].port, 0, "ttyname", "NODEVICE");
 #endif
-            map[i].lastserial[0] = 0;
         }
     } else if (strcmp(buf, map[i].serial)) {   /* Has our device has changed? */
         v = 0;
         if (strcmp(buf, map[i].lastserial)) {
             /* Only print errors when the serial number changes. */
-            printf("%s: device serial changed to %s (%s expected)\n",
+            printf("USB_Check: %s: device serial changed to %s (%s expected)\n",
                    map[i].port, buf, map[i].serial);
+            strncpy(map[i].lastserial, buf, 1024);
 #ifdef ASYN_SETOPTION_TTYNAME
             asynSetOption(map[i].port, 0, "ttyname", "NODEVICE");
 #endif
-            strncpy(map[i].lastserial, buf, 1024);
         }
     }
     if (!v) {
         char *tty = findserial(map[i].serial); /* Can we find it somewhere else? */
         if (tty) {
-            printf("%s: Serial number %s is now /dev/%s.\n", map[i].port, map[i].serial, tty);
+            printf("USB_Check: %s: Serial number %s is now /dev/%s.\n", map[i].port, map[i].serial, tty);
             free(map[i].tty);
             map[i].tty = tty;
 #ifdef ASYN_SETOPTION_TTYNAME

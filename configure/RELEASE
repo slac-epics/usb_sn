@@ -12,7 +12,7 @@ EPICS_BASE=$(EPICS_SITE_TOP)/base/$(BASE_MODULE_VERSION)
 # Define the version of modules needed by
 # IOC apps or other Support apps
 # ===============================================================
-ASYN_MODULE_VERSION          = R4.29-0.1.1
+ASYN_MODULE_VERSION          = R4.29-0.1.2
 
 # ============================================================
 # External Support module path definitions
