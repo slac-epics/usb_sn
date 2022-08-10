@@ -1,9 +1,9 @@
 # RELEASE.local
 #
 # Read definitions of:
-#   EPICS_SITE_TOP
-#   BASE_MODULE_VERSION
-#   EPICS_MODULES 
+#	EPICS_SITE_TOP
+#	BASE_MODULE_VERSION
+#	EPICS_MODULES 
 # from one of the following options
 -include $(TOP)/../../RELEASE_SITE
 -include $(TOP)/RELEASE_SITE
@@ -13,8 +13,13 @@
 
 # ==========================================================
 # Define the version strings for all needed modules
+# Use naming pattern:
+#   FOO_MODULE_VERSION = R1.2
+# so scripts can extract version strings
+# Don't set your version to anything such as "test" that
+# could match a directory name.
 # ==========================================================
-ASYN_MODULE_VERSION     = R4.32-1.0.0
+ASYN_MODULE_VERSION = R4.39-1.0.1
 
 # ==========================================================
 # External Support module path definitions
@@ -29,7 +34,7 @@ ASYN_MODULE_VERSION     = R4.32-1.0.0
 #
 # If your build fails, look for these paths in your build output
 # ==========================================================
-ASYN    = $(EPICS_MODULES)/asyn/$(ASYN_MODULE_VERSION)
+ASYN=$(EPICS_MODULES)/asyn/$(ASYN_MODULE_VERSION)
 
 # Set EPICS_BASE last so it appears last in the DB, DBD, INCLUDE, and LIB search paths
 EPICS_BASE = $(EPICS_SITE_TOP)/base/$(BASE_MODULE_VERSION)
@@ -37,4 +42,3 @@ EPICS_BASE = $(EPICS_SITE_TOP)/base/$(BASE_MODULE_VERSION)
 # Check for invalid or undefined EPICS_BASE
 -include $(TOP)/../../EPICS_BASE.check
 
-#MY_MODULES=/reg/neh/home1/mcbrowne/trunk12/modules
